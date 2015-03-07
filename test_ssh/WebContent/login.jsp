@@ -5,7 +5,7 @@
 <head>
 <script type="text/javascript" src="../js/jquery-1.7.1.js"></script>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Insert title here</title>
+<title>Welcome</title>
 </head>
 <body>
 	<h5><a href="/test_ssh/user/getAllUser">进入用户管理页</a></h5>

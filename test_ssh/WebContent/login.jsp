@@ -8,6 +8,6 @@
 <title>Insert title here</title>
 </head>
 <body>
-	<h5><a href="/test_ssh/user/getAllUser">进入用户管理页</a></h5>
+	<h5><a href="/test_ssh/user/getAllUser">Go Ahead</a></h5>
 </body>
 </html>

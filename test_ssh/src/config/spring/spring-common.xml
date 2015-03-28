@@ -25,9 +25,9 @@
 				<prop key="hibernate.format_sql">true</prop>
 			</props>
 		</property>
-		<property name="annotatedClasses">
+		<property name="packagesToScan">
 			<list>
-				<value>com.tgb.entity.User</value>
+				<value>com.tgb.entity.*</value>
 			</list>
 		</property>
 	</bean>

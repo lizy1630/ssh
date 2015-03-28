@@ -12,7 +12,7 @@ import org.hibernate.annotations.GenericGenerator;
 @Table(name="student")
 public class Student {
 
-	
+	@Id
 	@Column(length=11)
 	private int id;
 	

@@ -5,12 +5,14 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+import javax.persistence.SecondaryTable;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Type;
 
 @Entity
 @Table(name="student")
+@SecondaryTable(name="history")
 public class Student {
 
 	@Id
@@ -44,7 +46,7 @@ public class Student {
 	
 	
 	@OneToOne
-	@JoinColumn(name = "HISTORY_ID", table = "HISTORY")
+	@JoinColumn(name = "history_id", table = "history")
 	private History history;
 
 	/**************************************************GETTERS AND SETTERS**********************************************************************************/

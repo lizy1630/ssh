@@ -2,11 +2,8 @@ package com.tgb.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
-
-import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Table(name="student")
@@ -14,7 +11,7 @@ public class Student {
 
 	@Id
 	@Column(length=11)
-	private int id;
+	private int stu_num;
 	
 	@Column(length=20)
 	private String fname;
@@ -43,12 +40,12 @@ public class Student {
 	@Column(length=11)
 	private int history_id;
 
-	public int getId() {
-		return id;
+	public int getStu_num() {
+		return stu_num;
 	}
 
-	public void setId(int id) {
-		this.id = id;
+	public void setStu_num(int stu_num) {
+		this.stu_num = stu_num;
 	}
 
 	public String getFname() {

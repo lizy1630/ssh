@@ -8,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import javax.persistence.SecondaryTable;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Type;
@@ -17,6 +18,7 @@ import com.tgb.entity.intern.Project;
 
 @Entity
 @Table(name="student")
+@SecondaryTable(name="history")
 public class Student {
 
 	@Id
@@ -50,6 +52,7 @@ public class Student {
 	
 	
 	@OneToOne(fetch = FetchType.LAZY, mappedBy = "student", cascade = CascadeType.ALL)
+	@JoinColumn(name = "history_id", table = "history")
 	private History history;
 
 	@ManyToOne(fetch = FetchType.LAZY)

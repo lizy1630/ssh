@@ -1,9 +1,19 @@
 package com.tgb.entity;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.Type;
+
+import com.tgb.entity.intern.History;
+import com.tgb.entity.intern.Project;
 
 @Entity
 @Table(name="student")
@@ -26,7 +36,7 @@ public class Student {
 	private String email;
 
 	@Column(length=11)
-	private int tel;
+	private String tel;
 	
 	@Column(length=10)
 	private String reg_semester;
@@ -34,12 +44,21 @@ public class Student {
 	@Column(length=10)
 	private String reg_year;
 	
-	@Column(length=1)
+	@Column(columnDefinition = "TINYINT")
+	@Type(type = "org.hibernate.type.NumericBooleanType")
 	private boolean is_native;
 	
-	@Column(length=11)
-	private int history_id;
+	
+	@OneToOne(fetch = FetchType.LAZY, mappedBy = "student", cascade = CascadeType.ALL)
+	private History history;
 
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "proj_id", nullable = true)
+	private Project project;
+	
+	
+	/**************************************************GETTERS AND SETTERS**********************************************************************************/
+	
 	public int getStu_num() {
 		return stu_num;
 	}
@@ -47,6 +66,7 @@ public class Student {
 	public void setStu_num(int stu_num) {
 		this.stu_num = stu_num;
 	}
+	
 
 	public String getFname() {
 		return fname;
@@ -80,11 +100,11 @@ public class Student {
 		this.email = email;
 	}
 
-	public int getTel() {
+	public String getTel() {
 		return tel;
 	}
 
-	public void setTel(int tel) {
+	public void setTel(String tel) {
 		this.tel = tel;
 	}
 
@@ -112,14 +132,21 @@ public class Student {
 		this.is_native = is_native;
 	}
 
-	public int getHistory_id() {
-		return history_id;
+	public History getHistory() {
+		return history;
 	}
 
-	public void setHistory_id(int history_id) {
-		this.history_id = history_id;
+	public void setHistory(History history) {
+		this.history = history;
 	}
-	
+
+	public Project getProject() {
+		return project;
+	}
+
+	public void setProject(Project project) {
+		this.project = project;
+	}
 
 	
 }

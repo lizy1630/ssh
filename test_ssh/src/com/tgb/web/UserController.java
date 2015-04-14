@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.tgb.entity.User;
+import com.tgb.entity.User_T;
 import com.tgb.manager.UserManager;
 
 @Controller
@@ -42,7 +42,7 @@ public class UserController {
 	}
 	
 	@RequestMapping("/addUser")
-	public String addUser(User user,HttpServletRequest request){
+	public String addUser(User_T user,HttpServletRequest request){
 		
 		userManager.addUser(user);
 		
@@ -69,7 +69,7 @@ public class UserController {
 	}
 	
 	@RequestMapping("/updateUser")
-	public String updateUser(User user,HttpServletRequest request){
+	public String updateUser(User_T user,HttpServletRequest request){
 		
 		if(userManager.updateUser(user)){
 			user = userManager.getUser(user.getId());

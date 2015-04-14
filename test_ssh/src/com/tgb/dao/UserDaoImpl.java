@@ -5,7 +5,7 @@ import java.util.List;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 
-import com.tgb.entity.User;
+import com.tgb.entity.User_T;
 
 public class UserDaoImpl implements UserDao {
 
@@ -16,17 +16,17 @@ public class UserDaoImpl implements UserDao {
 	}
 	
 	@Override
-	public User getUser(String id) {
+	public User_T getUser(String id) {
 		
 		String hql = "from User u where u.id=?";
 		Query query = sessionFactory.getCurrentSession().createQuery(hql);
 		query.setString(0, id);
 		
-		return (User)query.uniqueResult();
+		return (User_T)query.uniqueResult();
 	}
 
 	@Override
-	public List<User> getAllUser() {
+	public List<User_T> getAllUser() {
 		
 		String hql = "from User";
 		Query query = sessionFactory.getCurrentSession().createQuery(hql);
@@ -35,7 +35,7 @@ public class UserDaoImpl implements UserDao {
 	}
 
 	@Override
-	public void addUser(User user) {
+	public void addUser(User_T user) {
 		sessionFactory.getCurrentSession().save(user);
 	}
 
@@ -50,7 +50,7 @@ public class UserDaoImpl implements UserDao {
 	}
 
 	@Override
-	public boolean updateUser(User user) {
+	public boolean updateUser(User_T user) {
 		
 		String hql = "update User u set u.userName = ?,u.age=? where u.id = ?";
 		Query query = sessionFactory.getCurrentSession().createQuery(hql);

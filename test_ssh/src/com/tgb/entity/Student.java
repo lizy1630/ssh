@@ -1,12 +1,15 @@
 package com.tgb.entity;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.SecondaryTable;
 import javax.persistence.Table;
+
 
 import org.hibernate.annotations.Type;
 
@@ -45,8 +48,8 @@ public class Student {
 	private boolean is_native;
 	
 	
-	@OneToOne
-	@JoinColumn(name = "history_id", table = "history")
+	@OneToOne(cascade=CascadeType.ALL, fetch=FetchType.LAZY)
+	@JoinColumn(name = "history_id", table = "history", referencedColumnName="history_id")
 	private History history;
 
 	/**************************************************GETTERS AND SETTERS**********************************************************************************/

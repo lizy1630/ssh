@@ -9,9 +9,9 @@
 	<!-- 配置数据源 -->
 	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource" >
 		<property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
-		<property name="url" value="jdbc:mysql://localhost/test_ssh"></property>
+		<property name="url" value="jdbc:mysql://localhost/db_project_internship"></property>
 		<property name="username" value="root"></property>
-		<property name="password" value=""></property>
+		<property name="password" value="root"></property>
 	</bean>
 	
 	<!-- 配置SessionFactory -->

@@ -1,5 +1,4 @@
-package com.tgb.entity;
-
+package com.tgb.entity.intern;
 
 
 
@@ -8,14 +7,19 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
+
+import com.tgb.entity.Student;
 
 @Entity
 @Table(name="history")
@@ -39,6 +43,9 @@ public class History {
 	@Type(type = "org.hibernate.type.NumericBooleanType")
 	private boolean is_hired;
 	
+	@OneToOne(fetch = FetchType.LAZY)
+	@PrimaryKeyJoinColumn
+	private Student student;
 	
 	/**************************************************GETTERS AND SETTERS**********************************************************************************/
 
@@ -72,6 +79,14 @@ public class History {
 
 	public void setIs_hired(boolean is_hired) {
 		this.is_hired = is_hired;
+	}
+
+	public Student getStudent() {
+		return student;
+	}
+
+	public void setStudent(Student student) {
+		this.student = student;
 	}
 	
 

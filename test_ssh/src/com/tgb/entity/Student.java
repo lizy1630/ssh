@@ -2,10 +2,12 @@ package com.tgb.entity;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.SecondaryTable;
 import javax.persistence.Table;
@@ -13,11 +15,18 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.Type;
 
+import com.tgb.entity.embedable.StudentNum;
+import com.tgb.entity.intern.History;
+import com.tgb.entity.intern.Project;
+
+
 @Entity
 @Table(name="student")
 @SecondaryTable(name="history")
 public class Student {
 
+	@EmbeddedId StudentNum studentId;
+	
 	@Id
 	@Column(length=11)
 	private int stu_num;
@@ -48,10 +57,16 @@ public class Student {
 	private boolean is_native;
 	
 	
-	@OneToOne(cascade=CascadeType.ALL, fetch=FetchType.LAZY)
-	@JoinColumn(name = "history_id", table = "history", referencedColumnName="history_id")
+
+	@OneToOne(fetch = FetchType.LAZY, mappedBy = "student", cascade = CascadeType.ALL)
+	@JoinColumn(name = "history_id", table = "history")
 	private History history;
 
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "proj_id", nullable = true)
+	private Project project;
+	
+	
 	/**************************************************GETTERS AND SETTERS**********************************************************************************/
 	
 	public int getStu_num() {
@@ -135,5 +150,23 @@ public class Student {
 		this.history = history;
 	}
 
+	public Project getProject() {
+		return project;
+	}
+
+	public void setProject(Project project) {
+		this.project = project;
+	}
+
+	public StudentNum getStudentId() {
+		return studentId;
+	}
+
+	public void setStudentId(StudentNum studentId) {
+		this.studentId = studentId;
+	}
+
+	
+	
 	
 }

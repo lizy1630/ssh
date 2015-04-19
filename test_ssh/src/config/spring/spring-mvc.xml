@@ -15,6 +15,7 @@
 
 	<!-- 开启注解 -->
 	<mvc:annotation-driven />
+	<mvc:default-servlet-handler /> 
 	
 	<!-- 静态资源(js/image)的访问 -->
 	<mvc:resources location="/js/" mapping="/js/**"/>

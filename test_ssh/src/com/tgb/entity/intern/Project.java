@@ -23,8 +23,8 @@ public class Project {
 	@Id
 	@GeneratedValue(generator="system-uuid")
 	@GenericGenerator(name = "system-uuid",strategy="uuid")
-	@Column(length=11)
-	private int proj_id;
+	@Column(length=32)
+	private String proj_id;
 	
 	@Column(length=50)
 	private String proj_name;
@@ -39,11 +39,11 @@ public class Project {
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "project")
 	private Set<Student> students;
 	
-	public int getProj_id() {
+	public String getProj_id() {
 		return proj_id;
 	}
 
-	public void setProj_id(int proj_id) {
+	public void setProj_id(String proj_id) {
 		this.proj_id = proj_id;
 	}
 

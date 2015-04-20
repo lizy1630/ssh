@@ -15,7 +15,6 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.Type;
 
-import com.tgb.entity.embedable.StudentNum;
 import com.tgb.entity.intern.History;
 import com.tgb.entity.intern.Project;
 
@@ -25,8 +24,6 @@ import com.tgb.entity.intern.Project;
 @SecondaryTable(name="history")
 public class Student {
 
-	@EmbeddedId StudentNum studentId;
-	
 	@Id
 	@Column(length=11)
 	private int stu_num;
@@ -158,15 +155,5 @@ public class Student {
 		this.project = project;
 	}
 
-	public StudentNum getStudentId() {
-		return studentId;
-	}
-
-	public void setStudentId(StudentNum studentId) {
-		this.studentId = studentId;
-	}
-
-	
-	
 	
 }

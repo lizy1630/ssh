@@ -19,8 +19,8 @@ public class Roles {
 	@Id
 	@GeneratedValue(generator="system-uuid")
 	@GenericGenerator(name = "system-uuid",strategy="uuid")
-	@Column(length=11)
-	private int role_id;
+	@Column(length=32)
+	private String role_id;
 	
 	@Column(length=25)
 	private String role_name;
@@ -31,11 +31,11 @@ public class Roles {
 	@ManyToMany(fetch = FetchType.LAZY, mappedBy = "roles")
 	private Set<User> users;
 
-	public int getRole_id() {
+	public String getRole_id() {
 		return role_id;
 	}
 
-	public void setRole_id(int role_id) {
+	public void setRole_id(String role_id) {
 		this.role_id = role_id;
 	}
 

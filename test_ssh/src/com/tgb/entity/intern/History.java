@@ -10,8 +10,8 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -28,8 +28,8 @@ public class History {
 	@Id
 	@GeneratedValue(generator="system-uuid")
 	@GenericGenerator(name = "system-uuid",strategy="uuid")
-	@Column(name="history_id", length=11)
-	private int history_id;
+	@Column(name="history_id", length=32)
+	private String history_id;
 	
 	@Column(name = "matched_time", columnDefinition="DATETIME")
 	@Temporal(TemporalType.TIMESTAMP)
@@ -44,16 +44,17 @@ public class History {
 	private boolean is_hired;
 	
 	@OneToOne(fetch = FetchType.LAZY)
-	@PrimaryKeyJoinColumn
+//	@PrimaryKeyJoinColumn
+	@JoinColumn(name="stu_num")
 	private Student student;
 	
 	/**************************************************GETTERS AND SETTERS**********************************************************************************/
 
-	public int getHistory_id() {
+	public String getHistory_id() {
 		return history_id;
 	}
 
-	public void setHistory_id(int history_id) {
+	public void setHistory_id(String history_id) {
 		this.history_id = history_id;
 	}
 

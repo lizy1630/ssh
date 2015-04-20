@@ -54,9 +54,9 @@ public class Student {
 	private boolean is_native;
 	
 	
-
-	@OneToOne(fetch = FetchType.LAZY, mappedBy = "student", cascade = CascadeType.ALL)
+	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(name = "history_id", table = "history")
+
 	private History history;
 
 	@ManyToOne(fetch = FetchType.LAZY)

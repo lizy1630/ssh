@@ -21,8 +21,8 @@ public class Company {
 	@Id
 	@GeneratedValue(generator="system-uuid")
 	@GenericGenerator(name = "system-uuid",strategy="uuid")
-	@Column(length=11)
-	private int com_code;
+	@Column(length=32)
+	private String com_code;
 	
 	@Column(length=50)
 	private String name;
@@ -51,11 +51,11 @@ public class Company {
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "company")
 	private Set<Job> jobs;
 	
-	public int getCom_code() {
+	public String getCom_code() {
 		return com_code;
 	}
 
-	public void setCom_code(int com_code) {
+	public void setCom_code(String com_code) {
 		this.com_code = com_code;
 	}
 

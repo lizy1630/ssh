@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.tgb.entity.User_T;
+import com.tgb.entity.intern.User;
 import com.tgb.manager.UserManager;
 
 @Controller
@@ -21,11 +21,21 @@ public class UserController {
 	private UserManager userManager;
 
 	@RequestMapping("/getAllUser")
-	public String getAllUser(HttpServletRequest request){
+	public String  getAllUser(HttpServletRequest request){
+		
+		request.setAttribute("userList", userManager.getAllUser());
+		return "/WEB-INF/jsp/user/userList";
+		
+		
+	}
+	
+	
+	@RequestMapping("/getUserByRole")
+	public String getUserByRole(HttpServletRequest request){
 		
 		request.setAttribute("userList", userManager.getAllUser());
 		
-		return "/index";
+		return "/WEB-INF/jsp/user/userList";
 	}
 	
 	@RequestMapping("/getUser")
@@ -33,16 +43,16 @@ public class UserController {
 		
 		request.setAttribute("user", userManager.getUser(id));
 	
-		return "/editUser";
+		return "/WEB-INF/jsp/user/editUser";
 	}
 	
 	@RequestMapping("/toAddUser")
 	public String toAddUser(){
-		return "/addUser";
+		return "/WEB-INF/jsp/user/addUser";
 	}
 	
 	@RequestMapping("/addUser")
-	public String addUser(User_T user,HttpServletRequest request){
+	public String addUser(User user,HttpServletRequest request){
 		
 		userManager.addUser(user);
 		
@@ -69,14 +79,14 @@ public class UserController {
 	}
 	
 	@RequestMapping("/updateUser")
-	public String updateUser(User_T user,HttpServletRequest request){
+	public String updateUser(User user,HttpServletRequest request){
 		
 		if(userManager.updateUser(user)){
-			user = userManager.getUser(user.getId());
+			user = userManager.getUser(user.getUser_id());
 			request.setAttribute("user", user);
 			return "redirect:/user/getAllUser";
 		}else{
-			return "/error";
+			return "/WEB-INF/error";
 		}
 	}
 }

@@ -1,5 +1,6 @@
 package com.tgb.entity.intern;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -23,7 +24,7 @@ public class User {
 	@Id
 	@GeneratedValue(generator="system-uuid")
 	@GenericGenerator(name = "system-uuid",strategy="uuid")
-	@Column(length=11)
+	@Column(length=32)
 	private String user_id;
 	
 	@Column(length=50)
@@ -57,13 +58,13 @@ public class User {
 	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinTable(name = "user_roles",  joinColumns = { @JoinColumn(name = "user_id") }, 
 			inverseJoinColumns = { @JoinColumn(name = "role_id")})
-	private Set<Roles> roles;
+	private Set<Roles> roles = new HashSet<Roles>();
 	
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-	private Set<Project> projects;
+	private Set<Project> projects = new HashSet<Project>();
 	
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-	private Set<Contact_History> contact_histories;
+	private Set<Contact_History> contact_histories = new HashSet<Contact_History>();
 	
 	public String getUser_id() {
 		return user_id;

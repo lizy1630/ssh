@@ -21,8 +21,8 @@ public class Com_Contact_Person {
 	@Id
 	@GeneratedValue(generator="system-uuid")
 	@GenericGenerator(name = "system-uuid",strategy="uuid")
-	@Column(length=11)
-	private int cp_id;
+	@Column(length=32)
+	private String cp_id;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "com_code", nullable = false)
@@ -40,11 +40,11 @@ public class Com_Contact_Person {
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "com_contact_person")
 	private Set<Contact_History> contact_histories;
 
-	public int getCp_id() {
+	public String getCp_id() {
 		return cp_id;
 	}
 
-	public void setCp_id(int cp_id) {
+	public void setCp_id(String cp_id) {
 		this.cp_id = cp_id;
 	}
 

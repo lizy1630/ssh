@@ -3,7 +3,7 @@ package com.tgb.manager;
 import java.util.List;
 
 import com.tgb.dao.UserDao;
-import com.tgb.entity.User_T;
+import com.tgb.entity.intern.User;
 
 public class UserManagerImpl implements UserManager {
 
@@ -14,17 +14,17 @@ public class UserManagerImpl implements UserManager {
 	}
 
 	@Override
-	public User_T getUser(String id) {
+	public User getUser(String id) {
 		return userDao.getUser(id);
 	}
 
 	@Override
-	public List<User_T> getAllUser() {
+	public List<User> getAllUser() {
 		return userDao.getAllUser();
 	}
 
 	@Override
-	public void addUser(User_T user) {
+	public void addUser(User user) {
 		userDao.addUser(user);
 	}
 
@@ -35,7 +35,7 @@ public class UserManagerImpl implements UserManager {
 	}
 
 	@Override
-	public boolean updateUser(User_T user) {
+	public boolean updateUser(User user) {
 		return userDao.updateUser(user);
 	}
 

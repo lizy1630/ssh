@@ -26,7 +26,7 @@ public class Student {
 
 	@Id
 	@Column(length=11)
-	private int stu_num;
+	private String stu_num;
 	
 	@Column(length=20)
 	private String fname;
@@ -66,11 +66,11 @@ public class Student {
 	
 	/**************************************************GETTERS AND SETTERS**********************************************************************************/
 	
-	public int getStu_num() {
+	public String getStu_num() {
 		return stu_num;
 	}
 
-	public void setStu_num(int stu_num) {
+	public void setStu_num(String stu_num) {
 		this.stu_num = stu_num;
 	}
 	

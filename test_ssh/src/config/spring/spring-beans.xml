@@ -33,4 +33,70 @@
 	<bean name="companyManager" parent="transactionProxy">
 		<property name="target" ref="companyManagerBase"></property>
 	</bean>	
+	
+	<!-- program skills -->
+	<bean id="programSkillsDao" class="com.tgb.dao.ProgramSkillsDaoImpl">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<bean id="programSkillsManagerBase" class="com.tgb.manager.ProgramSkillsManagerImpl">
+		<property name="programSkillsDao" ref="programSkillsDao"></property>
+	</bean>
+	
+	<bean name="programSkillsManager" parent="transactionProxy">
+		<property name="target" ref="programSkillsManagerBase"></property>
+	</bean>	
+	
+	<!-- survey levels -->
+	<bean id="surveyLevelsDao" class="com.tgb.dao.SurveyLevelsDaoImpl">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<bean id="surveyLevelsManagerBase" class="com.tgb.manager.SurveyLevelsManagerImpl">
+		<property name="surveyLevelsDao" ref="surveyLevelsDao"></property>
+	</bean>
+	
+	<bean name="surveyLevelsManager" parent="transactionProxy">
+		<property name="target" ref="surveyLevelsManagerBase"></property>
+	</bean>	
+	
+	<!-- program languages -->
+	<bean id="programLanguagesDao" class="com.tgb.dao.ProgramLanguagesDaoImpl">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<bean id="programLanguagesManagerBase" class="com.tgb.manager.ProgramLanguagesManagerImpl">
+		<property name="programLanguagesDao" ref="programLanguagesDao"></property>
+	</bean>
+	
+	<bean name="programLanguagesManager" parent="transactionProxy">
+		<property name="target" ref="programLanguagesManagerBase"></property>
+	</bean>	
+	
+	<!-- student -->
+	<bean id="studentDao" class="com.tgb.dao.StudentDaoImpl">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<bean id="studentManagerBase" class="com.tgb.manager.StudentManagerImpl">
+		<property name="studentDao" ref="studentDao"></property>
+	</bean>
+	
+	<bean name="studentManager" parent="transactionProxy">
+		<property name="target" ref="studentManagerBase"></property>
+	</bean>	
+	
+	<!-- TableId -->
+	<bean id="TableIdDao" class="com.tgb.dao.TableIdDaoImpl">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<bean id="TableIdManagerBase" class="com.tgb.manager.TableIdManagerImpl">
+		<property name="TableIdDao" ref="TableIdDao"></property>
+	</bean>
+	
+	<bean name="TableIdManager" parent="transactionProxy">
+		<property name="target" ref="TableIdManagerBase"></property>
+	</bean>	
+	
 </beans>

@@ -57,7 +57,16 @@
 					survey manage
 				</li>
 				<li>
-					<a href="#">Student Survey</a>
+					<a href="/test_ssh/programSkills/toAddProgramSkills">add program skills</a>
+				</li>
+				<li>
+					<a href="/test_ssh/programSkills/getAllProgramSkills">view all program skills</a>
+				</li>
+				<li>
+					<a href="/test_ssh/surveyLevels/toAddSurveyLevel">add survey level</a>
+				</li>
+				<li>
+					<a href="/test_ssh/surveyLevels/getAllSurveyLevels">view all survey levels</a>
 				</li>
 				<li>
 					<a href="#">Student Match</a>

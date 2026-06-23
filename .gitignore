@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# Secrets & local config
+slack_assistant/.env
+mcp_servers.json
+
+# Runtime data (local activity log)
+slack_assistant/decisions.jsonl
+
+# OS
+.DS_Store

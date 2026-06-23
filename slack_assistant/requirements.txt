@@ -1,0 +1,16 @@
+# Core
+slack-bolt>=1.18
+slack-sdk>=3.27
+claude-agent-sdk>=0.1.0
+python-dotenv>=1.0
+requests>=2.31
+apscheduler>=3.10
+
+# Local transcription (default: SenseVoice via FunASR)
+funasr>=1.1.0
+modelscope>=1.13
+torch>=2.1
+torchaudio>=2.1
+
+# Optional broad-language fallback (TRANSCRIBE_PROVIDER=faster-whisper)
+faster-whisper>=1.0

@@ -37,6 +37,23 @@ pip install -r slack_assistant/requirements.txt
 ```
 The first transcription downloads the SenseVoice model (one-time).
 
+### 1b. Claude auth (use your Max/Pro subscription — no API key)
+The agent runs on the Claude Code engine, so it can authenticate with your existing
+**Max/Pro subscription** instead of a paid API key. On the Mac Mini:
+
+```bash
+# Install the Claude Code CLI (Node.js required)
+npm install -g @anthropic-ai/claude-code
+
+# RECOMMENDED (headless): mint a long-lived token from your subscription
+claude setup-token
+# → copy the token into CLAUDE_CODE_OAUTH_TOKEN in slack_assistant/.env
+```
+This uses your subscription (no per-call billing) and never needs interactive re-login,
+which is ideal for an always-on service. Alternatively, just run `claude` once to log in
+interactively (credentials saved on disk), or set `ANTHROPIC_API_KEY` for pay-as-you-go.
+Pick exactly one; leave the others blank.
+
 ### 2. Slack app (text + image intake, and the output surface)
 The bot both **receives** your typed text / images and **posts back** results (including
 those from the iPhone voice path). Steps:

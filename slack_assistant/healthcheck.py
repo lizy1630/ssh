@@ -46,7 +46,27 @@ def check_health() -> list[str]:
             f"TRANSCRIBE_PROVIDER {config.transcribe_provider!r} is not valid."
         )
 
+    # 4. Some Claude auth is reachable. Env-based auth (OAuth token / API key) is
+    #    verifiable; an interactive `claude` login lives on disk and isn't checked
+    #    here, so only warn when no on-disk login exists either.
+    if not config.has_claude_auth() and not _has_claude_cli_login():
+        failures.append(
+            "No Claude auth found: set CLAUDE_CODE_OAUTH_TOKEN (from "
+            "`claude setup-token`) or ANTHROPIC_API_KEY, or run `claude` to log in."
+        )
+
     return failures
+
+
+def _has_claude_cli_login() -> bool:
+    """Best-effort check for an interactive Claude Code login on disk."""
+    from pathlib import Path
+
+    candidates = [
+        Path.home() / ".claude" / ".credentials.json",
+        Path.home() / ".config" / "claude" / ".credentials.json",
+    ]
+    return any(p.exists() for p in candidates)
 
 
 def _send_alert(failures: list[str]) -> None:

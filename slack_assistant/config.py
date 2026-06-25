@@ -37,10 +37,23 @@ class Config:
     # Only act on messages authored by this Slack user id (your id). Empty = any human.
     allowed_user_id: str | None = field(default_factory=lambda: _get("ALLOWED_USER_ID"))
 
-    # --- Claude ---
+    # --- Claude auth (pick ONE) ---
+    # Preferred for Max/Pro subscribers: a long-lived OAuth token from
+    # `claude setup-token` (no per-call API billing, static like a key).
+    claude_code_oauth_token: str | None = field(
+        default_factory=lambda: _get("CLAUDE_CODE_OAUTH_TOKEN")
+    )
+    # Alternative: pay-as-you-go API key. Leave unset if using the OAuth token
+    # or an interactive `claude` login on the host.
     anthropic_api_key: str | None = field(
         default_factory=lambda: _get("ANTHROPIC_API_KEY")
     )
+
+    def has_claude_auth(self) -> bool:
+        """True if some Claude auth is configured via env. An interactive
+        `claude` login (credentials on disk) is NOT visible here, so a False
+        result is a warning, not a hard error."""
+        return bool(self.claude_code_oauth_token or self.anthropic_api_key)
 
     # --- Transcription ---
     transcribe_provider: str = field(

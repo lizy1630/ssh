@@ -6,6 +6,11 @@ python-dotenv>=1.0
 requests>=2.31
 apscheduler>=3.10
 
+# Voice receiver (iPhone -> Mac Mini path)
+fastapi>=0.110
+uvicorn>=0.29
+python-multipart>=0.0.9
+
 # Local transcription (default: SenseVoice via FunASR)
 funasr>=1.1.0
 modelscope>=1.13

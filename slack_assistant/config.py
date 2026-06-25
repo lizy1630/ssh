@@ -56,6 +56,24 @@ class Config:
         default_factory=lambda: _get("DIGEST_EMAIL_SUBJECT", "Day Summary")
     )
 
+    # --- Voice API (iPhone -> Mac Mini receiver) ---
+    # Bind to the Tailscale interface IP in production so the port is not reachable
+    # off-tailnet. Defaults to localhost for safe local testing.
+    voice_api_host: str = field(
+        default_factory=lambda: _get("VOICE_API_HOST", "127.0.0.1")
+    )
+    voice_api_port: int = field(
+        default_factory=lambda: int(_get("VOICE_API_PORT", "8765"))
+    )
+    # Slack channel that receives processed-voice results (the output/log surface).
+    # Defaults to the same inbox channel the listener watches.
+    slack_output_channel: str | None = field(
+        default_factory=lambda: _get("SLACK_OUTPUT_CHANNEL") or _get("INBOX_CHANNEL_ID")
+    )
+    max_upload_mb: int = field(
+        default_factory=lambda: int(_get("MAX_UPLOAD_MB", "25"))
+    )
+
     # --- Health check ---
     healthcheck_hour_interval: int = field(
         default_factory=lambda: int(_get("HEALTHCHECK_HOUR_INTERVAL", "1"))

@@ -68,6 +68,8 @@ def _build_options(system_prompt: str):
         system_prompt=system_prompt,
         mcp_servers=load_mcp_servers(),
         permission_mode="acceptEdits",
+        # Read is needed so the agent can view attached image files from disk.
+        allowed_tools=["Read"],
     )
 
 
@@ -87,15 +89,37 @@ async def _run_query(prompt: str, system_prompt: str) -> str:
     return "\n".join(t for t in final_text if t).strip()
 
 
-async def run(transcript: str, context: dict | None = None) -> str:
-    """Route and execute a single user request. Returns a short summary string."""
+async def run(
+    transcript: str,
+    context: dict | None = None,
+    attachments: list[str] | None = None,
+) -> str:
+    """Route and execute a single user request. Returns a short summary string.
+
+    Args:
+        transcript: The text request (typed, or transcribed from a voice memo).
+        context: Optional metadata, e.g. {"source": "slack" | "iphone-voice"}.
+        attachments: Optional local image file paths. They are referenced in the
+            prompt and the agent views them with its built-in Read tool. The caller
+            owns the files and must keep them on disk until this coroutine returns.
+    """
     system_prompt = _load_text(ROUTING_PROMPT_PATH)
     memory = _load_text(MEMORY_PATH)
     context = context or {}
+    attachment_block = ""
+    if attachments:
+        listed = "\n".join(f"- {p}" for p in attachments)
+        attachment_block = (
+            "\n# Attached image(s)\n"
+            "The request includes the following local image file(s). Use your Read "
+            "tool to view each one before deciding the intent:\n"
+            f"{listed}\n"
+        )
     prompt = (
         f"# Your accumulated memory / preferences\n{memory}\n\n"
         f"# Incoming request (from Slack {context.get('source', 'message')})\n"
-        f"{transcript}\n\n"
+        f"{transcript}\n"
+        f"{attachment_block}\n"
         "Decide the intent and execute it using your MCP tools. "
         "Then reply with a one-line summary of exactly what you did."
     )

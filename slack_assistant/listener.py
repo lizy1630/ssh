@@ -23,6 +23,7 @@ from .transcription import transcribe
 logger = logging.getLogger(__name__)
 
 _AUDIO_SUBTYPES = ("audio", "mp3", "m4a", "wav", "ogg", "mpeg", "x-m4a", "webm")
+_IMAGE_SUBTYPES = ("png", "jpg", "jpeg", "gif", "webp", "heic", "bmp", "tiff")
 
 
 def should_handle(event: dict, *, bot_user_id: str | None) -> bool:
@@ -60,6 +61,17 @@ def _extract_audio_files(event: dict) -> list[dict]:
         if mimetype.startswith("audio/") or filetype in _AUDIO_SUBTYPES:
             audio.append(f)
     return audio
+
+
+def _extract_image_files(event: dict) -> list[dict]:
+    files = event.get("files") or []
+    images = []
+    for f in files:
+        mimetype = (f.get("mimetype") or "").lower()
+        filetype = (f.get("filetype") or "").lower()
+        if mimetype.startswith("image/") or filetype in _IMAGE_SUBTYPES:
+            images.append(f)
+    return images
 
 
 def _download_slack_file(file_obj: dict) -> str:
@@ -106,23 +118,30 @@ def _process(event: dict, client) -> None:
     except Exception:  # noqa: BLE001 - feedback is best-effort
         logger.debug("Could not add :eyes: reaction", exc_info=True)
 
+    image_paths: list[str] = []
     try:
         transcript, was_voice = _resolve_transcript(event)
-        if not transcript:
+        # Download any image attachments; they must outlive the agent run.
+        image_paths = [_download_slack_file(f) for f in _extract_image_files(event)]
+        if not transcript and not image_paths:
             _react(client, channel, ts, remove="eyes", add="question")
             return
         if was_voice:
             client.chat_postMessage(
                 channel=channel, thread_ts=ts, text=f"📝 Heard: {transcript}"
             )
+        # When only an image is sent (no text), give the agent a default instruction.
+        agent_text = transcript or "(no text — process the attached image)"
 
-        summary = asyncio.run(agent_run(transcript, {"source": "slack"}))
+        summary = asyncio.run(
+            agent_run(agent_text, {"source": "slack"}, attachments=image_paths or None)
+        )
 
         client.chat_postMessage(
             channel=channel, thread_ts=ts, text=summary or "Done."
         )
         _react(client, channel, ts, remove="eyes", add="white_check_mark")
-        log_decision(transcript=transcript, summary=summary, ok=True)
+        log_decision(transcript=transcript or "[image]", summary=summary, ok=True)
     except Exception as exc:  # noqa: BLE001 - never crash the listener thread
         logger.exception("Failed to process message")
         try:
@@ -133,6 +152,12 @@ def _process(event: dict, client) -> None:
             pass
         _react(client, channel, ts, remove="eyes", add="x")
         log_decision(transcript=event.get("text", ""), summary=str(exc), ok=False)
+    finally:
+        for path in image_paths:
+            try:
+                os.remove(path)
+            except OSError:
+                pass
 
 
 def _react(client, channel, ts, *, remove: str, add: str) -> None:

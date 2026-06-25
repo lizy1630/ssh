@@ -37,15 +37,36 @@ pip install -r slack_assistant/requirements.txt
 ```
 The first transcription downloads the SenseVoice model (one-time).
 
-### 2. Slack app
-- Create a Slack app and **enable Socket Mode**.
-- Generate an **app-level token** (`xapp-`) with `connections:write`.
-- Bot token scopes: `channels:history`, `groups:history`, `im:history`, `files:read`,
-  `chat:write`, `reactions:write`, `users:read`.
-- Event subscriptions: `message.channels`, `message.groups`, `message.im`.
-- **Inbox channel:** a bot **cannot read your personal self-DM**. Create a private
-  channel (e.g. `#me-inbox`), invite the bot, and put its id in `INBOX_CHANNEL_ID`.
-  (Or DM the bot directly and use that DM's channel id.)
+### 2. Slack app (text + image intake, and the output surface)
+The bot both **receives** your typed text / images and **posts back** results (including
+those from the iPhone voice path). Steps:
+
+1. **Create the app** at api.slack.com/apps → *From scratch*. For privacy, create it in a
+   **personal Slack workspace** (one you own), not a company workspace — company admins on
+   Business+/Enterprise Grid can export DMs. Sign up with a **personal email**, since
+   whoever controls the email can reset the account, and Enterprise Grid can auto-absorb
+   workspaces created with a claimed company domain.
+2. **Enable Socket Mode** → generate an **app-level token** (`xapp-…`) with `connections:write`.
+3. **OAuth & Permissions → Bot Token Scopes:**
+   - `channels:history`, `groups:history`, `im:history` — read messages in the inbox
+   - `files:read` — download attached images (and any audio)
+   - `chat:write` — post results / threaded replies (this is the **output** surface)
+   - `reactions:write` — the 👀 → ✅/❌ feedback
+   - `users:read` — identify the sender
+   Install to the workspace and copy the **bot token** (`xoxb-…`).
+4. **Event Subscriptions → Subscribe to bot events:** `message.channels`, `message.groups`,
+   `message.im`. (These deliver text *and* file-share events, so images arrive automatically
+   — no extra scope beyond `files:read` to fetch them.)
+5. **Inbox channel:** a bot **cannot read your personal self-DM**. Use **Option A — DM the
+   bot**: open a direct message with the bot app and send text/images there; use that DM's
+   conversation id (`D…`) as `INBOX_CHANNEL_ID`. (Or make a private channel and invite the
+   bot, using its `C…` id.)
+6. **Output channel:** results post back to `SLACK_OUTPUT_CHANNEL`; leave it blank to reuse
+   `INBOX_CHANNEL_ID` (the same DM/channel), so everything stays in one place.
+
+**What flows through Slack:** typed **text** and **images** are processed by Claude (images
+are read multimodally). **Voice** does *not* go through Slack — it comes via the iPhone path
+below — but its transcript + result are **posted to Slack** as the log surface.
 
 ### 3. MCP servers
 Create `mcp_servers.json` (path set by `MCP_CONFIG_PATH`) with your Slack, Gmail and
@@ -63,10 +84,60 @@ Copy `slack_assistant/.env.example` to `slack_assistant/.env` and fill it in.
 
 ## Run
 ```bash
-./run_listener.sh
+./run_listener.sh      # Slack text/image intake + scheduler (digest + health check)
+./run_voice_api.sh     # FastAPI voice receiver for the iPhone path (separate process)
 ```
-This starts the listener and the in-process scheduler (daily digest + hourly health
-check). Send a message in your inbox channel to test.
+`run_listener.sh` starts the Slack listener and the in-process scheduler. `run_voice_api.sh`
+starts the `/voice` HTTP receiver. Run both on the Mac Mini (Phase 3 adds systemd/launchd
+units so they stay up). Send a message in your inbox channel — or a voice note from your
+phone — to test.
+
+## iPhone voice path (Back Tap → Mac Mini → Whisper → Claude → Slack)
+
+Capture a thought with a double-tap on the back of your phone; the audio goes straight to
+the Mac Mini (not through Slack), is transcribed locally, routed by Claude, and the result
+is posted to Slack.
+
+### Receiver
+The endpoint is `POST /voice` (see `voice_api.py`). It accepts the raw audio body (or a
+multipart `file` field), transcribes via the configured local model, runs the agent, posts
+`🎙️ <transcript> → <result>` to Slack, and returns `{ok, transcript, summary}`.
+
+Set in `.env`:
+- `VOICE_API_HOST` = the Mac's **Tailscale IP** (`100.x.y.z`) in production so the port is
+  unreachable off-tailnet. Use `127.0.0.1` for local-only testing.
+- `VOICE_API_PORT` = e.g. `8765`.
+
+Smoke test locally:
+```bash
+curl --data-binary @sample.m4a -H "Content-Type: audio/m4a" \
+  http://127.0.0.1:8765/voice
+```
+
+### iOS Shortcut
+Create a Shortcut named e.g. "Voice → Mac" with two actions:
+1. **Record Audio** — Start: *Immediately*, Stop: *On Tap* (records m4a).
+2. **Get Contents of URL** —
+   - URL: `http://<mac-tailscale-ip>:8765/voice`
+   - Method: `POST`
+   - Request Body: **File** → the *Recorded Audio* output
+   - (Add header `Content-Type: audio/m4a` if Shortcuts doesn't set it.)
+3. *(Optional)* **Show Notification** with the response's `summary`.
+
+### Back Tap trigger
+Settings → Accessibility → Touch → **Back Tap** → **Double Tap** → pick the Shortcut.
+Double-tap, speak, tap the screen to stop.
+
+### Tailscale + security (Tailscale-only auth)
+Install Tailscale on the iPhone and Mac Mini (same tailnet); use the Mac's Tailscale IP in
+the URL. The endpoint has **no app-layer token** — it relies on the tailnet:
+- Bind `VOICE_API_HOST` to the Tailscale IP (never `0.0.0.0` on public Wi-Fi).
+- **Do not** use Tailscale Funnel or router port-forwarding — keep it tailnet-private
+  (WireGuard already encrypts, so plain HTTP within the tailnet is fine).
+- Optionally use Tailscale ACLs to allow only your iPhone to reach the port.
+- The receiver still enforces `MAX_UPLOAD_MB`, an audio content-type allowlist, and temp-file
+  cleanup. Residual risk: any device on your tailnet could POST `/voice` — acceptable for a
+  single-user tailnet; add a shared secret / `tailscale serve` later if it grows.
 
 ### Choosing a transcription model
 Set `TRANSCRIBE_PROVIDER`:

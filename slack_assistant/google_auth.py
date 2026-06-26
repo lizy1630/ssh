@@ -77,14 +77,46 @@ async def _run() -> int:
                 print("ERROR: no auth tool found. Available tools:", names)
                 return 1
 
-            print(f"Calling auth tool: {auth_tool}")
-            try:
-                result = await session.call_tool(
-                    auth_tool, {"user_google_email": email}
-                )
-            except Exception:
-                # Some versions take no/different args; retry with empty args.
-                result = await session.call_tool(auth_tool, {})
+            tool_obj = next(t for t in tools.tools if t.name == auth_tool)
+            schema = getattr(tool_obj, "inputSchema", None) or {}
+            props = schema.get("properties", {}) or {}
+            print(f"Calling auth tool: {auth_tool}  (params: {list(props)})")
+
+            # Build the argument set from the tool's own schema.
+            def build_args(service_value: str | None) -> dict:
+                a: dict = {}
+                if "user_google_email" in props:
+                    a["user_google_email"] = email
+                if "service_name" in props:
+                    enum = props["service_name"].get("enum")
+                    a["service_name"] = enum[0] if enum else service_value
+                # Fill any other required string args we don't know with a guess.
+                for req in schema.get("required", []):
+                    if req not in a:
+                        a[req] = service_value or "calendar"
+                return a
+
+            # Try the schema enum first, then fall back across common labels.
+            candidates = [None, "calendar", "Google Calendar", "gmail", "Gmail"]
+            result = None
+            last_err = None
+            for cand in candidates:
+                try:
+                    r = await session.call_tool(auth_tool, build_args(cand))
+                except Exception as exc:  # noqa: BLE001
+                    last_err = exc
+                    continue
+                # A bad-argument error may come back as an error result, not a raise.
+                if getattr(r, "isError", False):
+                    last_err = "".join(
+                        getattr(b, "text", "") for b in (r.content or [])
+                    )
+                    continue
+                result = r
+                break
+            if result is None:
+                print("ERROR calling auth tool:", last_err)
+                return 1
 
             for block in getattr(result, "content", []) or []:
                 text = getattr(block, "text", None)

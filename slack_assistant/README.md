@@ -126,10 +126,15 @@ The file (Claude Agent SDK `mcp_servers` format — a map of server name → std
 ```
 Ensure `MCP_CONFIG_PATH=./mcp_servers.json` in `.env` (the default).
 
-**d. First-run authorization:** the first time you ask for a calendar event or email,
-the server opens a browser for Google consent (callback on `localhost:8000`). Approve it
-once — the token is cached, so later requests are silent. If that first request fails
-while you're authorizing, just send it again.
+**d. One-time authorization:** single-user `workspace-mcp` only starts its OAuth flow
+when an auth tool is called, so run the bootstrap helper once (it invokes the auth tool
+and holds the connection open so the `localhost:8000` callback completes):
+```bash
+python -m slack_assistant.google_auth
+```
+A browser opens → sign in → Advanced → continue → **Allow**. The token caches to
+`~/.google_workspace_mcp/credentials` and the assistant reuses it silently afterward.
+(If the browser doesn't open, the command prints an authorization URL — open it manually.)
 
 ### 4. Config
 Copy `slack_assistant/.env.example` to `slack_assistant/.env` and fill it in.

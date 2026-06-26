@@ -179,8 +179,22 @@ def build_app():
 
     @app.event("message")
     def handle_message(event, client):  # noqa: ANN001
+        logger.info(
+            "incoming message: channel=%s user=%s subtype=%s files=%s",
+            event.get("channel"),
+            event.get("user"),
+            event.get("subtype"),
+            len(event.get("files") or []),
+        )
         if not should_handle(event, bot_user_id=bot_user_id):
+            logger.info(
+                "IGNORED by filter. Configured INBOX_CHANNEL_ID=%s ALLOWED_USER_ID=%s "
+                "(set INBOX_CHANNEL_ID to the 'channel' value above if they differ)",
+                config.inbox_channel_id,
+                config.allowed_user_id,
+            )
             return
+        logger.info("handling message in channel=%s", event.get("channel"))
         # Hand off to a worker thread so we ack the socket immediately.
         threading.Thread(
             target=_process, args=(event, client), daemon=True

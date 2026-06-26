@@ -184,18 +184,26 @@ def build_app():
     @app.event("message")
     def handle_message(event, client):  # noqa: ANN001
         logger.info(
-            "incoming message: channel=%s user=%s subtype=%s files=%s",
+            "incoming message: channel=%s user=%s bot_id=%s subtype=%s files=%s",
             event.get("channel"),
             event.get("user"),
+            event.get("bot_id"),
             event.get("subtype"),
             len(event.get("files") or []),
         )
         if not should_handle(event, bot_user_id=bot_user_id):
+            reason = "bot/integration message (post 'as the user' instead)" if (
+                event.get("bot_id") or event.get("user") == bot_user_id
+            ) else "channel/user not in allow-list"
             logger.info(
-                "IGNORED by filter. Configured INBOX_CHANNEL_ID=%s ALLOWED_USER_ID=%s "
-                "(set INBOX_CHANNEL_ID to the 'channel' value above if they differ)",
+                "IGNORED (%s). Watching INBOX=%s INTAKE=%s ALLOWED_USER=%s; "
+                "this msg channel=%s user=%s",
+                reason,
                 config.inbox_channel_id,
+                config.email_intake_channel,
                 config.allowed_user_id,
+                event.get("channel"),
+                event.get("user"),
             )
             return
         logger.info("handling message in channel=%s", event.get("channel"))

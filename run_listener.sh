@@ -1,14 +1,10 @@
 #!/usr/bin/env bash
-# Launch the Slack assistant listener (loads .env if present).
+# Launch the Slack assistant listener.
+# Config is loaded from slack_assistant/.env by python-dotenv (see config.py),
+# so we do NOT source the .env here — that avoids shell-quoting issues with
+# values containing spaces (e.g. DIGEST_EMAIL_SUBJECT="Day Summary").
 set -euo pipefail
 
 cd "$(dirname "$0")"
-
-if [ -f slack_assistant/.env ]; then
-  set -a
-  # shellcheck disable=SC1091
-  . slack_assistant/.env
-  set +a
-fi
 
 exec python -m slack_assistant.listener

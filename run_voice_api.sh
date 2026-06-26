@@ -1,17 +1,13 @@
 #!/usr/bin/env bash
-# Launch the FastAPI voice receiver (iPhone -> Mac Mini path). Loads .env if present.
+# Launch the FastAPI voice receiver (iPhone -> Mac Mini path).
+# Config is loaded from slack_assistant/.env by python-dotenv (see config.py).
+# Host/port are read from the loaded config rather than sourcing the .env in the
+# shell, which avoids quoting issues with values containing spaces.
 set -euo pipefail
 
 cd "$(dirname "$0")"
 
-if [ -f slack_assistant/.env ]; then
-  set -a
-  # shellcheck disable=SC1091
-  . slack_assistant/.env
-  set +a
-fi
-
-HOST="${VOICE_API_HOST:-127.0.0.1}"
-PORT="${VOICE_API_PORT:-8765}"
+HOST="$(python -c 'from slack_assistant.config import config; print(config.voice_api_host)')"
+PORT="$(python -c 'from slack_assistant.config import config; print(config.voice_api_port)')"
 
 exec uvicorn slack_assistant.voice_api:app --host "$HOST" --port "$PORT"

@@ -85,16 +85,51 @@ those from the iPhone voice path). Steps:
 are read multimodally). **Voice** does *not* go through Slack — it comes via the iPhone path
 below — but its transcript + result are **posted to Slack** as the log surface.
 
-### 3. MCP servers
-Create `mcp_servers.json` (path set by `MCP_CONFIG_PATH`) with your Slack, Gmail and
-Google Calendar MCP servers in Claude Agent SDK `mcp_servers` format:
+### 3. MCP servers (Gmail + Google Calendar)
+The agent reaches Gmail and Calendar through one MCP server:
+[`taylorwilsdon/google_workspace_mcp`](https://github.com/taylorwilsdon/google_workspace_mcp)
+(PyPI `workspace-mcp`, run via `uvx`). One Google login covers both.
+
+**a. Google OAuth credentials (one-time):**
+1. Go to [console.cloud.google.com](https://console.cloud.google.com) → create a project.
+2. **APIs & Services → Library** → enable **Gmail API** and **Google Calendar API**.
+3. **OAuth consent screen** → User type **External** → fill app name/email → add your
+   Gmail as a **Test user**.
+4. **Credentials → Create Credentials → OAuth client ID** → Application type
+   **Desktop app** → copy the **Client ID** and **Client secret**.
+
+**b. Install the runtime** (provides `uvx`):
+```bash
+brew install uv     # macOS
+```
+
+**c. Create `mcp_servers.json`** (gitignored) from the template and fill in the secrets:
+```bash
+cp mcp_servers.example.json mcp_servers.json
+nano mcp_servers.json      # paste Client ID + Client secret
+```
+The file (Claude Agent SDK `mcp_servers` format — a map of server name → stdio config):
 ```json
 {
-  "gmail":    {"command": "npx", "args": ["-y", "@your/gmail-mcp"],    "env": {"...": "..."}},
-  "calendar": {"command": "npx", "args": ["-y", "@your/gcal-mcp"],     "env": {"...": "..."}},
-  "slack":    {"command": "npx", "args": ["-y", "@your/slack-mcp"],    "env": {"...": "..."}}
+  "google_workspace": {
+    "type": "stdio",
+    "command": "uvx",
+    "args": ["workspace-mcp", "--tools", "gmail", "calendar"],
+    "env": {
+      "GOOGLE_OAUTH_CLIENT_ID": "…",
+      "GOOGLE_OAUTH_CLIENT_SECRET": "…",
+      "OAUTHLIB_INSECURE_TRANSPORT": "1",
+      "USER_GOOGLE_EMAIL": "lizy1630@gmail.com"
+    }
+  }
 }
 ```
+Ensure `MCP_CONFIG_PATH=./mcp_servers.json` in `.env` (the default).
+
+**d. First-run authorization:** the first time you ask for a calendar event or email,
+the server opens a browser for Google consent (callback on `localhost:8000`). Approve it
+once — the token is cached, so later requests are silent. If that first request fails
+while you're authorizing, just send it again.
 
 ### 4. Config
 Copy `slack_assistant/.env.example` to `slack_assistant/.env` and fill it in.

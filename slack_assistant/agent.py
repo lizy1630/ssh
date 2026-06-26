@@ -67,9 +67,11 @@ def _build_options(system_prompt: str):
     return ClaudeAgentOptions(
         system_prompt=system_prompt,
         mcp_servers=load_mcp_servers(),
-        permission_mode="acceptEdits",
-        # Read is needed so the agent can view attached image files from disk.
-        allowed_tools=["Read"],
+        # Act on the owner's behalf without interactive approval prompts.
+        permission_mode="bypassPermissions",
+        # Leave allowed_tools unset so BOTH the built-in Read tool (for viewing
+        # attached images) and the MCP tools (mcp__<server>__*, e.g. Gmail /
+        # Calendar) are available. Restricting it here would block MCP actions.
     )
 
 

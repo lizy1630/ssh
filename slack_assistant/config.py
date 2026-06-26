@@ -8,11 +8,18 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field
+from pathlib import Path
 
 try:
     from dotenv import load_dotenv
 
-    load_dotenv()
+    # Load slack_assistant/.env explicitly so it works regardless of the current
+    # working directory. Fall back to the default search (CWD upward) otherwise.
+    _ENV_PATH = Path(__file__).resolve().parent / ".env"
+    if _ENV_PATH.exists():
+        load_dotenv(_ENV_PATH)
+    else:
+        load_dotenv()
 except ImportError:  # dotenv is optional at runtime if env is already set
     pass
 

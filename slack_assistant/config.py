@@ -80,7 +80,7 @@ class Config:
     # Bind to the Tailscale interface IP in production so the port is not reachable
     # off-tailnet. Defaults to localhost for safe local testing.
     voice_api_host: str = field(
-        default_factory=lambda: _get("VOICE_API_HOST", "127.0.0.1")
+        default_factory=lambda: _get("VOICE_API_HOST", "auto")
     )
     voice_api_port: int = field(
         default_factory=lambda: int(_get("VOICE_API_PORT", "8765"))

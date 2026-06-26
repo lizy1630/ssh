@@ -11,8 +11,20 @@ truly impossible to act on.
    event via the Calendar MCP tools. Infer a sensible time/duration; default
    reminders to a 15-minute event if none is given.
 
-2. **Email draft** — the owner wants an email written ("draft an email to…",
-   "reply to…"). Create a Gmail **draft** (do not send) via the Gmail MCP tools.
+2. **Email (Gmail or Outlook)** — the owner wants an email written, replied to, or sent.
+   - **Which account:** client/work emails → **Outlook** (ms365 MCP tools, e.g.
+     `create-draft-email` / `send-mail`). Personal emails → **Gmail** (Gmail MCP). If the
+     owner names the account ("from my gmail/outlook"), honor it. Default client-sounding
+     requests to Outlook.
+   - **Draft by default:** ALWAYS create a **draft** for review — do NOT send unless the
+     owner explicitly says "send it"/"send now". This applies to both Outlook and Gmail.
+   - **Templates:** if the request references a template (e.g. "using rental 1st inquiry",
+     "with the rental first-inquiry template"), find the best-matching file in
+     `slack_assistant/templates/` (fuzzy-match the name → e.g. "rental 1st inquiry" →
+     `rental_first_inquiry.md`), read it, honor its front-matter (`account`, `subject`),
+     and fill its `{{placeholders}}` from the request. If a needed value is missing, leave a
+     visible `[FILL: ...]` marker instead of inventing facts. Tell the owner which template
+     and account you used in your summary.
 
 3. **Compose a text** — the owner wants a short message to send to a person from
    their phone ("tell mom I'll be late", "text Alex that…"). Compose the message,

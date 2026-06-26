@@ -9,5 +9,11 @@
       "OAUTHLIB_INSECURE_TRANSPORT": "1",
       "USER_GOOGLE_EMAIL": "lizy1630@gmail.com"
     }
+  },
+  "ms365": {
+    "type": "stdio",
+    "command": "npx",
+    "args": ["-y", "@softeria/ms-365-mcp-server"],
+    "env": {}
   }
 }

@@ -136,6 +136,34 @@ A browser opens → sign in → Advanced → continue → **Allow**. The token c
 `~/.google_workspace_mcp/credentials` and the assistant reuses it silently afterward.
 (If the browser doesn't open, the command prints an authorization URL — open it manually.)
 
+### 3b. Outlook / Microsoft 365 (optional, for client email)
+To also read/send from an Outlook account, the `ms365` entry in `mcp_servers.json` uses
+[`@softeria/ms-365-mcp-server`](https://github.com/softeria/ms-365-mcp-server) (Microsoft
+Graph). It's already in `mcp_servers.example.json`.
+
+- **Personal outlook.com / hotmail / live:** works out of the box (the server's built-in
+  app), no Azure registration.
+- **Work / company M365:** add `"--org-mode"` to its `args`, and note your company may
+  require IT **admin consent** for a third-party app to read/send mail — if so, it won't
+  work until IT approves.
+
+**One-time login** (device code): run the server's login once so the token caches, e.g.
+```bash
+npx -y @softeria/ms-365-mcp-server login    # add --org-mode for a work account
+```
+It prints a code → open <https://microsoft.com/devicelogin> → enter the code → sign in.
+(See the repo README for the exact current login flag if this differs.)
+
+Routing: client/work emails go via **Outlook**, personal via **Gmail**; both are **drafted
+for review** by default (the assistant only sends when you say "send it").
+
+### 3c. Email templates
+Named, reusable templates live in `slack_assistant/templates/` (one `.md` per template).
+Say *"write Sarah an email using rental 1st inquiry"* and the agent fuzzy-matches the name
+to `rental_first_inquiry.md`, honors its front-matter (`account`, `subject`), fills the
+`{{placeholders}}` from your message, and creates a draft. Add a template by dropping a new
+`.md` file in that folder — see `slack_assistant/templates/README.md` for the format.
+
 ### 4. Config
 Copy `slack_assistant/.env.example` to `slack_assistant/.env` and fill it in.
 

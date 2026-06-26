@@ -26,11 +26,14 @@ _AUDIO_SUBTYPES = ("audio", "mp3", "m4a", "wav", "ogg", "mpeg", "x-m4a", "webm")
 _IMAGE_SUBTYPES = ("png", "jpg", "jpeg", "gif", "webp", "heic", "bmp", "tiff")
 
 
-def should_handle(event: dict, *, bot_user_id: str | None) -> bool:
+def should_handle(
+    event: dict, *, bot_user_id: str | None, self_bot_id: str | None = None
+) -> bool:
     """Decide whether an incoming Slack message event is one we should act on.
 
-    Filters out bot/self echoes, message edits/deletes, the wrong channel, and
-    (when ``ALLOWED_USER_ID`` is set) anyone other than the owner.
+    - Inbox channel (bot DM): only YOU; ignore all bot/integration posts.
+    - Email-intake channel: ALSO accept integration posts (that's how Power
+      Automate delivers client emails) — but never our own bot's posts.
     """
     if event.get("type") != "message":
         return False
@@ -38,20 +41,30 @@ def should_handle(event: dict, *, bot_user_id: str | None) -> bool:
     subtype = event.get("subtype")
     if subtype and subtype != "file_share":
         return False
-    # Never react to our own bot's messages (prevents loops).
-    if event.get("bot_id"):
-        return False
+    # Always ignore OUR OWN bot's posts (prevents loops in any channel).
     if bot_user_id and event.get("user") == bot_user_id:
         return False
-    # Scope to the inbox channel (bot DM) and/or the email-intake channel
-    # (where Power Automate posts client emails "as you").
+    if self_bot_id and event.get("bot_id") == self_bot_id:
+        return False
+
+    channel = event.get("channel")
+    is_intake = bool(config.email_intake_channel) and channel == config.email_intake_channel
+
+    # In the inbox DM, ignore third-party bot/integration posts. In the intake
+    # channel, allow them (Power Automate posts client emails there).
+    if event.get("bot_id") and not is_intake:
+        return False
+
+    # Scope to the inbox channel (bot DM) and/or the email-intake channel.
     allowed_channels = {
         c for c in (config.inbox_channel_id, config.email_intake_channel) if c
     }
-    if allowed_channels and event.get("channel") not in allowed_channels:
+    if allowed_channels and channel not in allowed_channels:
         return False
-    # Restrict to the owner if configured.
-    if config.allowed_user_id and event.get("user") != config.allowed_user_id:
+
+    # Owner restriction applies only outside the intake channel (intake posts
+    # from an integration usually have no user id).
+    if not is_intake and config.allowed_user_id and event.get("user") != config.allowed_user_id:
         return False
     return True
 
@@ -178,8 +191,10 @@ def build_app():
 
     config.require_slack()
     app = App(token=config.slack_bot_token)
-    bot_user_id = app.client.auth_test().get("user_id")
-    logger.info("Authenticated as bot user %s", bot_user_id)
+    auth = app.client.auth_test()
+    bot_user_id = auth.get("user_id")
+    self_bot_id = auth.get("bot_id")
+    logger.info("Authenticated as bot user %s (bot_id %s)", bot_user_id, self_bot_id)
 
     @app.event("message")
     def handle_message(event, client):  # noqa: ANN001
@@ -191,9 +206,11 @@ def build_app():
             event.get("subtype"),
             len(event.get("files") or []),
         )
-        if not should_handle(event, bot_user_id=bot_user_id):
-            reason = "bot/integration message (post 'as the user' instead)" if (
-                event.get("bot_id") or event.get("user") == bot_user_id
+        if not should_handle(
+            event, bot_user_id=bot_user_id, self_bot_id=self_bot_id
+        ):
+            reason = "our own bot's post" if (
+                event.get("user") == bot_user_id or event.get("bot_id") == self_bot_id
             ) else "channel/user not in allow-list"
             logger.info(
                 "IGNORED (%s). Watching INBOX=%s INTAKE=%s ALLOWED_USER=%s; "

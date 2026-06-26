@@ -43,6 +43,11 @@ class Config:
     inbox_channel_id: str | None = field(default_factory=lambda: _get("INBOX_CHANNEL_ID"))
     # Only act on messages authored by this Slack user id (your id). Empty = any human.
     allowed_user_id: str | None = field(default_factory=lambda: _get("ALLOWED_USER_ID"))
+    # Optional second channel the listener also watches — e.g. a dedicated
+    # #email-intake channel where Power Automate posts client emails "as you".
+    email_intake_channel: str | None = field(
+        default_factory=lambda: _get("EMAIL_INTAKE_CHANNEL")
+    )
 
     # --- Claude auth (pick ONE) ---
     # Preferred for Max/Pro subscribers: a long-lived OAuth token from

@@ -43,8 +43,12 @@ def should_handle(event: dict, *, bot_user_id: str | None) -> bool:
         return False
     if bot_user_id and event.get("user") == bot_user_id:
         return False
-    # Scope to the dedicated inbox channel.
-    if config.inbox_channel_id and event.get("channel") != config.inbox_channel_id:
+    # Scope to the inbox channel (bot DM) and/or the email-intake channel
+    # (where Power Automate posts client emails "as you").
+    allowed_channels = {
+        c for c in (config.inbox_channel_id, config.email_intake_channel) if c
+    }
+    if allowed_channels and event.get("channel") not in allowed_channels:
         return False
     # Restrict to the owner if configured.
     if config.allowed_user_id and event.get("user") != config.allowed_user_id:

@@ -81,6 +81,22 @@ class Config:
         default_factory=lambda: _get("DIGEST_EMAIL_SUBJECT", "Day Summary")
     )
 
+    # --- Weekly digest ---
+    # APScheduler day-of-week: mon,tue,wed,thu,fri,sat,sun (or 0-6).
+    weekly_digest_day: str = field(
+        default_factory=lambda: _get("WEEKLY_DIGEST_DAY", "sun")
+    )
+    weekly_digest_hour: int = field(
+        default_factory=lambda: int(_get("WEEKLY_DIGEST_HOUR", "18"))
+    )
+    weekly_digest_email_to: str = field(
+        default_factory=lambda: _get("WEEKLY_DIGEST_EMAIL_TO")
+        or _get("DIGEST_EMAIL_TO", "lizy1630@gmail.com")
+    )
+    weekly_digest_subject: str = field(
+        default_factory=lambda: _get("WEEKLY_DIGEST_SUBJECT", "Weekly Summary")
+    )
+
     # --- Voice API (iPhone -> Mac Mini receiver) ---
     # Bind to the Tailscale interface IP in production so the port is not reachable
     # off-tailnet. Defaults to localhost for safe local testing.

@@ -24,7 +24,7 @@ def start_background_jobs() -> None:
         )
         return
 
-    from .digest import run_daily_digest
+    from .digest import run_daily_digest, run_weekly_digest
     from .healthcheck import run_health_check
 
     scheduler = BackgroundScheduler()
@@ -37,6 +37,15 @@ def start_background_jobs() -> None:
         misfire_grace_time=3600,
     )
     scheduler.add_job(
+        run_weekly_digest,
+        "cron",
+        day_of_week=config.weekly_digest_day,
+        hour=config.weekly_digest_hour,
+        minute=0,
+        id="weekly_digest",
+        misfire_grace_time=3600,
+    )
+    scheduler.add_job(
         run_health_check,
         "interval",
         hours=max(1, config.healthcheck_hour_interval),
@@ -45,7 +54,10 @@ def start_background_jobs() -> None:
     )
     scheduler.start()
     logger.info(
-        "Scheduled daily digest at %02d:00 and health check every %dh",
+        "Scheduled daily digest at %02d:00, weekly digest %s at %02d:00, "
+        "health check every %dh",
         config.digest_hour,
+        config.weekly_digest_day,
+        config.weekly_digest_hour,
         config.healthcheck_hour_interval,
     )

@@ -230,10 +230,23 @@ Set `TRANSCRIBE_PROVIDER`:
 - `paraformer` — strongest for heavy Mandarin + English mixing.
 - `faster-whisper` — broad-language fallback (downloads `large-v3`).
 
+## Digests
+- **Daily** (default 21:00): recap of today's logged activity + upcoming reminders,
+  emailed to `DIGEST_EMAIL_TO` with subject `DIGEST_EMAIL_SUBJECT`.
+- **Weekly** (default Sunday 18:00, `WEEKLY_DIGEST_DAY`/`WEEKLY_DIGEST_HOUR`): the past
+  7 days' activity + the next 14 days of reminders, emailed with `WEEKLY_DIGEST_SUBJECT`.
+
+Run either by hand:
+```bash
+python -m slack_assistant.digest          # daily
+python -m slack_assistant.digest weekly   # weekly
+```
+
 ## Scheduling without the in-process scheduler
 If you prefer external cron, omit APScheduler and run:
 ```cron
 0 21 * * *  cd /path/to/repo && ./.venv/bin/python -m slack_assistant.digest
+0 18 * * 0  cd /path/to/repo && ./.venv/bin/python -m slack_assistant.digest weekly
 0 *  * * *  cd /path/to/repo && ./.venv/bin/python -m slack_assistant.healthcheck
 ```
 

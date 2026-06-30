@@ -6,7 +6,7 @@ Each routed action is written as one JSON line to ``decisions.jsonl``.
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 _PKG_DIR = Path(__file__).resolve().parent
@@ -40,5 +40,27 @@ def read_decisions_for_day(day: datetime | None = None) -> list[dict]:
         except (json.JSONDecodeError, KeyError, ValueError):
             continue
         if rec_ts == day:
+            out.append(rec)
+    return out
+
+
+def read_decisions_since(days: int) -> list[dict]:
+    """Return decision records logged within the last ``days`` days."""
+    if not DECISIONS_PATH.exists():
+        return []
+    cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+    out: list[dict] = []
+    for line in DECISIONS_PATH.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            rec = json.loads(line)
+            rec_ts = datetime.fromisoformat(rec["ts"])
+            if rec_ts.tzinfo is None:
+                rec_ts = rec_ts.replace(tzinfo=timezone.utc)
+        except (json.JSONDecodeError, KeyError, ValueError):
+            continue
+        if rec_ts >= cutoff:
             out.append(rec)
     return out
